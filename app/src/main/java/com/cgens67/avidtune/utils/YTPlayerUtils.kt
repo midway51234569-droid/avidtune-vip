@@ -38,31 +38,32 @@ object YTPlayerUtils {
     )
 
     val AVAILABLE_CLIENTS = mapOf(
+        "ANDROID_NO_SDK" to YouTubeClient.ANDROID_NO_SDK,
         "VISIONOS" to YouTubeClient.VISIONOS,
+        "ANDROID_CREATOR" to YouTubeClient.ANDROID_CREATOR,
+        "ANDROID_VR_1_43_32" to YouTubeClient.ANDROID_VR_1_43_32,
+        "TVHTML5_SIMPLY_EMBEDDED_PLAYER" to YouTubeClient.TVHTML5_SIMPLY_EMBEDDED_PLAYER,
         "WEB_REMIX" to YouTubeClient.WEB_REMIX,
-        "TVHTML5_SIMPLY" to YouTubeClient.TVHTML5_SIMPLY,
         "TVHTML5" to YouTubeClient.TVHTML5,
+        "TVHTML5_SIMPLY" to YouTubeClient.TVHTML5_SIMPLY,
         "WEB_CREATOR" to YouTubeClient.WEB_CREATOR,
         "MWEB" to YouTubeClient.MWEB,
         "WEB" to YouTubeClient.WEB,
-        "TVHTML5_SIMPLY_EMBEDDED_PLAYER" to YouTubeClient.TVHTML5_SIMPLY_EMBEDDED_PLAYER,
         "IOS" to YouTubeClient.IOS,
+        "IPADOS" to YouTubeClient.IPADOS,
         "MOBILE" to YouTubeClient.MOBILE,
-        "ANDROID_NO_SDK" to YouTubeClient.ANDROID_NO_SDK,
         "ANDROID_VR_NO_AUTH" to YouTubeClient.ANDROID_VR_NO_AUTH,
         "ANDROID_VR_1_65_10" to YouTubeClient.ANDROID_VR_1_65_10,
-        "ANDROID_VR_1_61_48" to YouTubeClient.ANDROID_VR_1_61_48,
-        "ANDROID_VR_1_43_32" to YouTubeClient.ANDROID_VR_1_43_32,
-        "ANDROID_CREATOR" to YouTubeClient.ANDROID_CREATOR,
-        "IPADOS" to YouTubeClient.IPADOS
+        "ANDROID_VR_1_61_48" to YouTubeClient.ANDROID_VR_1_61_48
     )
 
     val DEFAULT_CLIENT_FALLBACK_CHAIN = listOf(
+        "ANDROID_NO_SDK",
         "VISIONOS",
-        "WEB_REMIX",
-        "TVHTML5_SIMPLY",
-        "TVHTML5",
-        "WEB_CREATOR"
+        "ANDROID_CREATOR",
+        "ANDROID_VR_1_43_32",
+        "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+        "WEB_REMIX"
     )
 
     fun getClientForName(name: String): YouTubeClient? = AVAILABLE_CLIENTS[name.trim().uppercase()]

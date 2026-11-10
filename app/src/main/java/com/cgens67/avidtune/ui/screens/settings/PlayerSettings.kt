@@ -331,8 +331,29 @@ fun PlayerSettings(
 
 @Composable
 private fun getPlaybackClientDescription(clientName: String): String {
-    val client = YTPlayerUtils.AVAILABLE_CLIENTS[clientName] ?: return "YouTube Client"
-    return client.friendlyName ?: client.clientName
+    return when (clientName.trim().uppercase()) {
+        "ANDROID_NO_SDK" -> stringResource(R.string.client_desc_android_no_sdk)
+        "VISIONOS" -> stringResource(R.string.client_desc_visionos)
+        "ANDROID_CREATOR" -> stringResource(R.string.client_desc_android_creator)
+        "ANDROID_VR_1_43_32" -> stringResource(R.string.client_desc_android_vr_1_43_32)
+        "TVHTML5_SIMPLY_EMBEDDED_PLAYER" -> stringResource(R.string.client_desc_tv_embedded)
+        "WEB_REMIX" -> stringResource(R.string.client_desc_web_remix)
+        "TVHTML5" -> stringResource(R.string.client_desc_tvhtml5)
+        "TVHTML5_SIMPLY" -> stringResource(R.string.client_desc_tvhtml5_simply)
+        "WEB_CREATOR" -> stringResource(R.string.client_desc_web_creator)
+        "MWEB" -> stringResource(R.string.client_desc_mweb)
+        "WEB" -> stringResource(R.string.client_desc_web)
+        "IOS" -> stringResource(R.string.client_desc_ios)
+        "IPADOS" -> stringResource(R.string.client_desc_ipados)
+        "MOBILE" -> stringResource(R.string.client_desc_android)
+        "ANDROID_VR_1_65_10" -> stringResource(R.string.client_desc_android_vr_1_65_10)
+        "ANDROID_VR_1_61_48" -> stringResource(R.string.client_desc_android_vr_1_61_48)
+        "ANDROID_VR_NO_AUTH" -> stringResource(R.string.client_desc_android_vr_no_auth)
+        "ANDROID_VR" -> stringResource(R.string.client_desc_android_vr)
+        else -> YTPlayerUtils.AVAILABLE_CLIENTS[clientName]?.friendlyName
+            ?: YTPlayerUtils.AVAILABLE_CLIENTS[clientName]?.clientName
+            ?: "YouTube Client"
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -461,8 +482,10 @@ fun ReorderPlaybackClientsBottomSheet(
                                 Spacer(Modifier.width(16.dp))
 
                                 Column(modifier = Modifier.weight(1f)) {
+                                    val clientObj = YTPlayerUtils.AVAILABLE_CLIENTS[item]
+                                    val displayName = clientObj?.friendlyName ?: item
                                     Text(
-                                        text = item,
+                                        text = displayName,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = if (index == 0) FontWeight.Bold else FontWeight.SemiBold
                                     )
@@ -555,7 +578,6 @@ private fun NerdStatsSection(playerConnection: PlayerConnection?) {
         }
     }
 
-    // Clean client label
     val cleanClientName = remember(playbackClient) {
         playbackClient?.let { raw ->
             if (raw.contains("clientName=")) {
@@ -622,7 +644,6 @@ private fun NerdStatsSection(playerConnection: PlayerConnection?) {
                     accentColor = MaterialTheme.colorScheme.primary
                 )
 
-                // Row for Playback Client & Codec
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
