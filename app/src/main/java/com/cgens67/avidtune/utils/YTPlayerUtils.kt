@@ -63,7 +63,18 @@ object YTPlayerUtils {
         "ANDROID_CREATOR",
         "ANDROID_VR_1_43_32",
         "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
-        "WEB_REMIX"
+        "WEB_REMIX",
+        "TVHTML5",
+        "TVHTML5_SIMPLY",
+        "WEB_CREATOR",
+        "MWEB",
+        "WEB",
+        "IOS",
+        "IPADOS",
+        "MOBILE",
+        "ANDROID_VR_NO_AUTH",
+        "ANDROID_VR_1_65_10",
+        "ANDROID_VR_1_61_48"
     )
 
     fun getClientForName(name: String): YouTubeClient? = AVAILABLE_CLIENTS[name.trim().uppercase()]
