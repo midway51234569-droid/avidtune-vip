@@ -757,7 +757,7 @@ fun Lyrics(
                     if (basePosition >= segment.second) {
                         sponsorBlockOffset += (segment.second - segment.first)
                     } else if (basePosition > segment.first) {
-                        sponsorBlockOffset += (currentVideoPos() - segment.first) // safely handled
+                        sponsorBlockOffset += (basePosition - segment.first)
                     }
                 }
             }
