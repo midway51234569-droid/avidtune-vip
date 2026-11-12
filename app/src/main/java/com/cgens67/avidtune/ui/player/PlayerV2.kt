@@ -438,6 +438,7 @@ fun PlayerV2(
             PlayerBackgroundStyle.BLUR,
             PlayerBackgroundStyle.GRADIENT,
             PlayerBackgroundStyle.APPLE_MUSIC,
+            PlayerBackgroundStyle.IMMERSIVE_ARTWORK,
             PlayerBackgroundStyle.LIVE_MESH -> Color.White
         },
         label = "adaptivePrimary"
@@ -448,6 +449,7 @@ fun PlayerV2(
             PlayerBackgroundStyle.BLUR,
             PlayerBackgroundStyle.GRADIENT,
             PlayerBackgroundStyle.APPLE_MUSIC,
+            PlayerBackgroundStyle.IMMERSIVE_ARTWORK,
             PlayerBackgroundStyle.LIVE_MESH -> Color.White.copy(alpha = 0.7f)
         },
         label = "adaptiveSecondary"
@@ -458,6 +460,7 @@ fun PlayerV2(
             PlayerBackgroundStyle.BLUR,
             PlayerBackgroundStyle.GRADIENT,
             PlayerBackgroundStyle.APPLE_MUSIC,
+            PlayerBackgroundStyle.IMMERSIVE_ARTWORK,
             PlayerBackgroundStyle.LIVE_MESH -> Color.White.copy(alpha = 0.2f)
         },
         label = "adaptiveSurface"
@@ -585,7 +588,7 @@ private fun PlayerV2Landscape(
     val menuState = LocalMenuState.current
     val bottomSheetPageState = LocalBottomSheetPageState.current
     val coverRadius = thumbnailCornerRadius.dp
-    val isAppleMusicBg = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC
+    val isAppleMusicBg = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK
 
     val isLiked = currentSong?.song?.liked == true
     val currentPos = sliderPosition ?: position
@@ -1319,7 +1322,7 @@ private fun PlayerV2Portrait(
 
     val isLiked = currentSong?.song?.liked == true
     val coverRadius = thumbnailCornerRadius.dp
-    val isAppleMusicBg = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC
+    val isAppleMusicBg = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK
 
     Box(
         modifier = modifier
@@ -1340,7 +1343,7 @@ private fun PlayerV2Portrait(
     ) {
         val overlayAlpha by animateFloatAsState(
             targetValue = if (
-                playerBackground == PlayerBackgroundStyle.APPLE_MUSIC &&
+                (playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK) &&
                 (playerState == PlayerInternalState.LYRICS || playerState == PlayerInternalState.QUEUE)
             ) {
                 0.75f
@@ -1619,7 +1622,6 @@ private fun PlayerV2Portrait(
                     } else if (targetState == PlayerInternalState.LYRICS || targetState == PlayerInternalState.QUEUE) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             val miniRadius = (thumbnailCornerRadius / 2f).coerceAtLeast(4f).dp
-                            val isAppleMusicBg = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

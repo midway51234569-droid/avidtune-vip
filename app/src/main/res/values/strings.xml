@@ -1518,4 +1518,6 @@
     <string name="provider_genius">Genius</string>
     <string name="provider_youtube_subtitle">YouTube Subtitle</string>
     
+    <string name="immersive_artwork">Immersive Artwork</string>
+    
 </resources>

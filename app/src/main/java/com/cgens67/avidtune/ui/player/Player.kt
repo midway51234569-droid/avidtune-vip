@@ -3,24 +3,18 @@
 package com.cgens67.avidtune.ui.player
 
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.BitmapDrawable
 import android.text.format.Formatter
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -173,6 +167,11 @@ import kotlinx.coroutines.withContext
 import me.saket.squiggles.SquigglySlider
 import kotlin.math.roundToInt
 
+private fun smootherStep(t: Float): Float {
+    val x = t.coerceIn(0f, 1f)
+    return x * x * x * (x * (x * 6f - 15f) + 10f)
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun BottomSheetPlayer(
@@ -225,7 +224,7 @@ fun BottomSheetPlayer(
         }
 
     val bottomSheetBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.APPLE_MUSIC ->
+        PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.APPLE_MUSIC, PlayerBackgroundStyle.IMMERSIVE_ARTWORK ->
             if (useDarkTheme) MaterialTheme.colorScheme.surfaceContainer else Color(0xFF424242)
         else ->
             if (useBlackBackground) Color.Black
@@ -275,10 +274,10 @@ fun BottomSheetPlayer(
             gradientColors = listOf(Color.Black, Color.Black)
             return@LaunchedEffect
         }
-        if (useBlackBackground && playerBackground != PlayerBackgroundStyle.GRADIENT && playerBackground != PlayerBackgroundStyle.APPLE_MUSIC) {
+        if (useBlackBackground && playerBackground != PlayerBackgroundStyle.GRADIENT && playerBackground != PlayerBackgroundStyle.APPLE_MUSIC && playerBackground != PlayerBackgroundStyle.IMMERSIVE_ARTWORK) {
             gradientColors = listOf(Color.Black, Color.Black)
             return@LaunchedEffect
-        } else if (playerBackground == PlayerBackgroundStyle.GRADIENT || playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.LIVE_MESH) {
+        } else if (playerBackground == PlayerBackgroundStyle.GRADIENT || playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK || playerBackground == PlayerBackgroundStyle.LIVE_MESH) {
             val thumbUrl = mediaMetadata?.thumbnailUrl ?: return@LaunchedEffect
             val cached = PlayerColorExtractor.gradientCache.get(thumbUrl)
             if (cached != null && cached.isNotEmpty()) {
@@ -458,7 +457,7 @@ fun BottomSheetPlayer(
         BottomSheet(
             state = state,
             modifier = modifier,
-            slidingBackground = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC,
+            slidingBackground = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK,
             background = {
                 Box(
                     modifier = Modifier
@@ -472,7 +471,7 @@ fun BottomSheetPlayer(
                             gradientColors = gradientColors,
                             disableBlur = disableBlur
                         )
-                        if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC) {
+                        if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC && playerBackground != PlayerBackgroundStyle.IMMERSIVE_ARTWORK) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -518,7 +517,7 @@ fun BottomSheetPlayer(
         BottomSheet(
             state = state,
             modifier = modifier,
-            slidingBackground = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC,
+            slidingBackground = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK,
             background = {
                 Box(
                     modifier = Modifier
@@ -532,7 +531,7 @@ fun BottomSheetPlayer(
                             gradientColors = gradientColors,
                             disableBlur = disableBlur
                         )
-                        if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC) {
+                        if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC && playerBackground != PlayerBackgroundStyle.IMMERSIVE_ARTWORK) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -578,7 +577,7 @@ fun BottomSheetPlayer(
     BottomSheet(
         state = state,
         modifier = modifier,
-        slidingBackground = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC,
+        slidingBackground = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK,
         background = {
             Box(
                 modifier = Modifier
@@ -592,7 +591,7 @@ fun BottomSheetPlayer(
                         gradientColors = gradientColors,
                         disableBlur = disableBlur
                     )
-                    if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC) {
+                    if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC && playerBackground != PlayerBackgroundStyle.IMMERSIVE_ARTWORK) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -1099,6 +1098,80 @@ fun PlayerBackground(
                                         )
                                     )
                             )
+                        }
+                    }
+                }
+            }
+            PlayerBackgroundStyle.IMMERSIVE_ARTWORK -> {
+                AnimatedContent(
+                    targetState = mediaMetadata?.thumbnailUrl,
+                    transitionSpec = {
+                        fadeIn(tween(800)) togetherWith fadeOut(tween(800))
+                    },
+                    label = "immersiveArtworkBackground"
+                ) { thumbnailUrl ->
+                    if (thumbnailUrl != null) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            // Layer 1: Full-Screen Blurred Backdrop
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(thumbnailUrl)
+                                    .size(128, 128)
+                                    .crossfade(600)
+                                    .allowHardware(false)
+                                    .build(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .let { if (!disableBlur) it.blur(100.dp) else it }
+                            )
+
+                            // Layer 1.5: Artwork Depth Scrim
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.verticalGradient(
+                                            0.00f to Color.Black.copy(alpha = 0.34f),
+                                            0.55f to Color.Black.copy(alpha = 0.48f),
+                                            1.00f to Color.Black.copy(alpha = 0.64f)
+                                        )
+                                    )
+                            )
+
+                            // Layer 2: Clear Artwork (Dissolves along smootherStep into backdrop)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(0.65f)
+                                    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                                    .drawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            brush = Brush.verticalGradient(
+                                                colorStops = Array(17) { i ->
+                                                    val t = i / 16f
+                                                    t to Color.Black.copy(alpha = 1f - smootherStep(t))
+                                                },
+                                                startY = size.height * (1f - 0.42f),
+                                                endY = size.height,
+                                            ),
+                                            blendMode = BlendMode.DstIn
+                                        )
+                                    }
+                            ) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(context)
+                                        .data(thumbnailUrl)
+                                        .crossfade(600)
+                                        .allowHardware(true)
+                                        .build(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
                     }
                 }

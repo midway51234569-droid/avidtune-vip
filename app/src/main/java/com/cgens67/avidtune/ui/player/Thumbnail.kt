@@ -79,7 +79,7 @@ fun Thumbnail(
         defaultValue = CoverResolution.RES_1080
     )
 
-    val isAppleMusicStyle = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC
+    val isAppleMusicStyle = playerBackground == PlayerBackgroundStyle.APPLE_MUSIC || playerBackground == PlayerBackgroundStyle.IMMERSIVE_ARTWORK
 
     var thumbnailCornerRadius by remember { mutableStateOf(16f) }
     LaunchedEffect(Unit) {
@@ -120,14 +120,12 @@ fun Thumbnail(
         )
     }
 
-    // Ensure grid scrolls back to the current track when the song actually changes
     LaunchedEffect(currentMediaItem) {
         if (currentMediaIndex != -1) {
             thumbnailLazyGridState.scrollToItem(currentMediaIndex)
         }
     }
 
-    // Detect when user has finished swiping to change the song
     LaunchedEffect(thumbnailLazyGridState.isScrollInProgress) {
         if (!thumbnailLazyGridState.isScrollInProgress) {
             val visibleIndex = thumbnailLazyGridState.firstVisibleItemIndex
@@ -137,7 +135,6 @@ fun Thumbnail(
                 } else if (visibleIndex > currentMediaIndex && canSkipNext) {
                     playerConnection.player.seekToNext()
                 }
-                // Reset scroll back so the next currentMediaItem trigger updates smoothly
                 thumbnailLazyGridState.scrollToItem(currentMediaIndex)
             }
         }
@@ -154,7 +151,6 @@ fun Thumbnail(
     }
 
     Box(modifier = modifier) {
-
         AnimatedVisibility(
             visible = error == null,
             enter = fadeIn(),
@@ -227,7 +223,6 @@ fun Thumbnail(
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
-
                                 if (isAppleMusicStyle) {
                                     // CARÁTULA OCULTA
                                     Box(modifier = Modifier.size(size))
@@ -269,7 +264,6 @@ fun Thumbnail(
             }
         }
         
-        // DISPLAY THE ERROR DESIGN WHEN IT OCCURS
         AnimatedVisibility(
             visible = error != null,
             enter = fadeIn(),
